@@ -1,0 +1,263 @@
+-- Gui to Lua
+-- Version: 3.2
+
+-- Instances:
+
+local ScreenGui = Instance.new("ScreenGui")
+local Invisible = Instance.new("Frame")
+local TextLabel = Instance.new("TextLabel")
+local UICorner = Instance.new("UICorner")
+local TextLabel_2 = Instance.new("TextLabel")
+local UICorner_2 = Instance.new("UICorner")
+local TextButton = Instance.new("TextButton")
+local UICorner_3 = Instance.new("UICorner")
+local TextButton_2 = Instance.new("TextButton")
+local UICorner_4 = Instance.new("UICorner")
+local UICorner_5 = Instance.new("UICorner")
+
+--Properties:
+
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+Invisible.Name = "Invisible"
+Invisible.Parent = ScreenGui
+Invisible.BackgroundColor3 = Color3.fromRGB(51, 255, 15)
+Invisible.Position = UDim2.new(0.258373201, 0, 0.319112629, 0)
+Invisible.Size = UDim2.new(0, 313, 0, 211)
+
+TextLabel.Parent = Invisible
+TextLabel.BackgroundColor3 = Color3.fromRGB(51, 255, 15)
+TextLabel.Position = UDim2.new(0.161234647, 0, 0.0812525004, 0)
+TextLabel.Size = UDim2.new(0, 200, 0, 50)
+TextLabel.Font = Enum.Font.SourceSans
+TextLabel.Text = "Invisible"
+TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextLabel.TextScaled = true
+TextLabel.TextSize = 14.000
+TextLabel.TextStrokeTransparency = 0.000
+TextLabel.TextWrapped = true
+
+UICorner.Parent = TextLabel
+
+TextLabel_2.Parent = Invisible
+TextLabel_2.BackgroundColor3 = Color3.fromRGB(51, 255, 15)
+TextLabel_2.Position = UDim2.new(0, 0, 0.322274894, 0)
+TextLabel_2.Size = UDim2.new(0, 99, 0, 50)
+TextLabel_2.Font = Enum.Font.SourceSans
+TextLabel_2.Text = "Note: Click (E) to become Invisible"
+TextLabel_2.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextLabel_2.TextScaled = true
+TextLabel_2.TextSize = 14.000
+TextLabel_2.TextWrapped = true
+
+UICorner_2.Parent = TextLabel_2
+
+TextButton.Parent = Invisible
+TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextButton.Position = UDim2.new(0.162939295, 0, 0.649289072, 0)
+TextButton.Size = UDim2.new(0, 200, 0, 50)
+TextButton.Font = Enum.Font.SourceSans
+TextButton.Text = "Click to Load Script"
+TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.TextSize = 14.000
+TextButton.MouseButton1Down:connect(function()
+	--[[Invisibility Toggle
+
+You can find the orginal concept here: https://v3rmillion.net/showthread.php?tid=544634
+
+This method clones the character locally, teleports the real character to a safe location, then sets the character to the clone.
+Basically, your real character is in the sky while you are on the ground.
+
+
+Because of the way this works, games with a decent anti-cheat will fuck this up.
+If you turn it off, you have to go to a safe place before going invisible.
+
+Written by: BitingTheDust ; https://v3rmillion.net/member.php?action=profile&uid=1628149
+]]
+	--Settings:
+	local ScriptStarted = false
+	local Keybind = "E" --Set to whatever you want, has to be the name of a KeyCode Enum.
+	local Transparency = true --Will make you slightly transparent when you are invisible. No reason to disable.
+	local NoClip = false --Will make your fake character no clip.
+
+	local Player = game:GetService("Players").LocalPlayer
+	local RealCharacter = Player.Character or Player.CharacterAdded:Wait()
+
+	local IsInvisible = false
+
+	RealCharacter.Archivable = true
+	local FakeCharacter = RealCharacter:Clone()
+	local Part
+	Part = Instance.new("Part", workspace)
+	Part.Anchored = true
+	Part.Size = Vector3.new(200, 1, 200)
+	Part.CFrame = CFrame.new(0, -500, 0) --Set this to whatever you want, just far away from the map.
+	Part.CanCollide = true
+	FakeCharacter.Parent = workspace
+	FakeCharacter.HumanoidRootPart.CFrame = Part.CFrame * CFrame.new(0, 5, 0)
+
+	for i, v in pairs(RealCharacter:GetChildren()) do
+		if v:IsA("LocalScript") then
+			local clone = v:Clone()
+			clone.Disabled = true
+			clone.Parent = FakeCharacter
+		end
+	end
+	if Transparency then
+		for i, v in pairs(FakeCharacter:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.Transparency = 0.7
+			end
+		end
+	end
+	local CanInvis = true
+	function RealCharacterDied()
+		CanInvis = false
+		RealCharacter:Destroy()
+		RealCharacter = Player.Character
+		CanInvis = true
+		isinvisible = false
+		FakeCharacter:Destroy()
+		workspace.CurrentCamera.CameraSubject = RealCharacter.Humanoid
+
+		RealCharacter.Archivable = true
+		FakeCharacter = RealCharacter:Clone()
+		Part:Destroy()
+		Part = Instance.new("Part", workspace)
+		Part.Anchored = true
+		Part.Size = Vector3.new(200, 1, 200)
+		Part.CFrame = CFrame.new(9999, 9999, 9999) --Set this to whatever you want, just far away from the map.
+		Part.CanCollide = true
+		FakeCharacter.Parent = workspace
+		FakeCharacter.HumanoidRootPart.CFrame = Part.CFrame * CFrame.new(0, 5, 0)
+
+		for i, v in pairs(RealCharacter:GetChildren()) do
+			if v:IsA("LocalScript") then
+				local clone = v:Clone()
+				clone.Disabled = true
+				clone.Parent = FakeCharacter
+			end
+		end
+		if Transparency then
+			for i, v in pairs(FakeCharacter:GetDescendants()) do
+				if v:IsA("BasePart") then
+					v.Transparency = 0.7
+				end
+			end
+		end
+		RealCharacter.Humanoid.Died:Connect(function()
+			RealCharacter:Destroy()
+			FakeCharacter:Destroy()
+		end)
+		Player.CharacterAppearanceLoaded:Connect(RealCharacterDied)
+	end
+	RealCharacter.Humanoid.Died:Connect(function()
+		RealCharacter:Destroy()
+		FakeCharacter:Destroy()
+	end)
+	Player.CharacterAppearanceLoaded:Connect(RealCharacterDied)
+	local PseudoAnchor
+	game:GetService "RunService".RenderStepped:Connect(
+		function()
+			if PseudoAnchor ~= nil then
+				PseudoAnchor.CFrame = Part.CFrame * CFrame.new(0, 5, 0)
+			end
+			if NoClip then
+				FakeCharacter.Humanoid:ChangeState(11)
+			end
+		end
+	)
+
+	PseudoAnchor = FakeCharacter.HumanoidRootPart
+	local function Invisible()
+		if IsInvisible == false then
+			local StoredCF = RealCharacter.HumanoidRootPart.CFrame
+			RealCharacter.HumanoidRootPart.CFrame = FakeCharacter.HumanoidRootPart.CFrame
+			FakeCharacter.HumanoidRootPart.CFrame = StoredCF
+			RealCharacter.Humanoid:UnequipTools()
+			Player.Character = FakeCharacter
+			workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
+			PseudoAnchor = RealCharacter.HumanoidRootPart
+			for i, v in pairs(FakeCharacter:GetChildren()) do
+				if v:IsA("LocalScript") then
+					v.Disabled = false
+				end
+			end
+
+			IsInvisible = true
+		else
+			local StoredCF = FakeCharacter.HumanoidRootPart.CFrame
+			FakeCharacter.HumanoidRootPart.CFrame = RealCharacter.HumanoidRootPart.CFrame
+
+			RealCharacter.HumanoidRootPart.CFrame = StoredCF
+
+			FakeCharacter.Humanoid:UnequipTools()
+			Player.Character = RealCharacter
+			workspace.CurrentCamera.CameraSubject = RealCharacter.Humanoid
+			PseudoAnchor = FakeCharacter.HumanoidRootPart
+			for i, v in pairs(FakeCharacter:GetChildren()) do
+				if v:IsA("LocalScript") then
+					v.Disabled = true
+				end
+			end
+			IsInvisible = false
+		end
+	end
+
+	game:GetService("UserInputService").InputBegan:Connect(
+	function(key, gamep)
+		if gamep then
+			return
+		end
+		if key.KeyCode.Name:lower() == Keybind:lower() and CanInvis and RealCharacter and FakeCharacter then
+			if RealCharacter:FindFirstChild("HumanoidRootPart") and FakeCharacter:FindFirstChild("HumanoidRootPart") then
+				Invisible()
+			end
+		end
+	end
+	)
+	local Sound = Instance.new("Sound",game:GetService("SoundService"))
+	Sound.SoundId = "rbxassetid://232127604"
+	Sound:Play()
+	game:GetService("StarterGui"):SetCore("SendNotification",{["Title"] = "Invisible Toggle Loaded",["Text"] = "Press "..Keybind.." to become change visibility.",["Duration"] = 20,["Button1"] = "Okay."})
+end)
+
+UICorner_3.Parent = TextButton
+
+TextButton_2.Parent = Invisible
+TextButton_2.BackgroundColor3 = Color3.fromRGB(51, 255, 15)
+TextButton_2.Position = UDim2.new(0.913738012, 0, 0, 0)
+TextButton_2.Size = UDim2.new(0, 27, 0, 38)
+TextButton_2.Font = Enum.Font.SourceSans
+TextButton_2.Text = "X"
+TextButton_2.TextColor3 = Color3.fromRGB(255, 0, 0)
+TextButton_2.TextScaled = true
+TextButton_2.TextSize = 14.000
+TextButton_2.TextStrokeTransparency = 0.000
+TextButton_2.TextWrapped = true
+
+UICorner_4.Parent = TextButton_2
+
+UICorner_5.Parent = Invisible
+
+-- Scripts:
+
+local function HQIMU_fake_script() -- TextButton_2.LocalScript 
+	local script = Instance.new('LocalScript', TextButton_2)
+
+	script.Parent.MouseButton1Click:Connect(function()
+		script.Parent.Parent.Visible = false
+	end)
+	
+end
+coroutine.wrap(HQIMU_fake_script)()
+local function PYIELE_fake_script() -- ScreenGui.Script 
+	local script = Instance.new('Script', ScreenGui)
+
+	frame = script.Parent.Invisible
+	frame.Draggable = true
+	frame.Active = true
+	frame.Selectable = true
+	
+end
+coroutine.wrap(PYIELE_fake_script)()
